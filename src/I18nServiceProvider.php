@@ -5,6 +5,7 @@ namespace Pine\I18n;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
+use \ForceUTF8\Encoding;
 
 class I18nServiceProvider extends ServiceProvider
 {
@@ -45,14 +46,19 @@ class I18nServiceProvider extends ServiceProvider
      */
     protected function translations()
     {
-        $translations = collect(File::directories(resource_path('lang')))->mapWithKeys(function ($dir) {
-            return [
-                basename($dir) => collect($this->getFiles($dir))->flatMap(function ($file) {
-                    return [
-                        $file->getBasename('.php') => (include $file->getPathname()),
-                    ];
-                }),
-            ];
+        $translations = collect(File::directories(resource_path('lang')))->filter(function ($dir) {
+        return basename($dir) == 'ar' || basename($dir) == 'en';
+    })->mapWithKeys(function ($dir) {
+                return [
+                    basename($dir) => collect($this->getFiles($dir))->flatMap(function ($file) {
+                        $data = (include $file->getPathname());
+                        $data = Encoding::toUTF8($data);
+                        return [
+                             $file->getBasename('.php') => $data,
+                           /* str_replace('/', '.', substr($file->getRelativePathname(), 0, -4)) => (include $file->getPathname()),*/
+                        ];
+                    }),
+                ];
         });
 
         $packageTranslations = $this->packageTranslations();
@@ -105,5 +111,6 @@ class I18nServiceProvider extends ServiceProvider
     protected function getFiles($dir)
     {
         return is_dir($dir) ? File::files($dir) : [];
+       /* return File::allFiles($dir);*/
     }
 }
