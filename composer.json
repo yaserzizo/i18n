@@ -21,7 +21,8 @@
     },
     "require": {
         "php" : "^7.2.5",
-        "laravel/framework": "^6.0 || ^7.0"
+        "laravel/framework": "^6.0 || ^7.0",
+        "neitanod/forceutf8": "^2.0"
     },
     "require-dev": {
         "laravel/laravel": "dev-master",
